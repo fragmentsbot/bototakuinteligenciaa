@@ -91,7 +91,16 @@ client.on("message", async message =>{
 
     if(command === "ping")
         return msg.info(message, "Ping: `" + Math.round(client.ping) + "ms`");
-      
+     
+    if(command === "say"){
+    // makes the bot say something and delete the message. As an example, it's open to anyone to use. 
+    // To get the "message" itself we join the `args` back into a string with spaces: 
+    const sayMessage = args.join(" ");
+    // Then we delete the command message (sneaky, right?). The catch just ignores the error with a cute smiley thing.
+    msg.delete().catch(O_o=>{}); 
+    // And we get the bot to say the thing: 
+    msg.channel.send(sayMessage);
+    }
   if(command === "limpar") {
     // This command removes all messages from all users in the channel, up to 100.
     
@@ -108,15 +117,7 @@ client.on("message", async message =>{
     message.channel.bulkDelete(fetched)
       .catch(error => message.reply(`Não posso deletar por algum motivo: ${error}`));
   } 
-if(command === "say") {
-    // makes the bot say something and delete the message. As an example, it's open to anyone to use. 
-    // To get the "message" itself we join the `args` back into a string with spaces: 
-    const sayMessage = args.join(" ");
-    // Then we delete the command message (sneaky, right?). The catch just ignores the error with a cute smiley thing.
-    message.delete().catch(O_o=>{}); 
-    // And we get the bot to say the thing: 
-    message.channel.send(sayMessage);
-  }
+ 
     if(command === "rainbow") {
         let rainbowRole = args.join(" ");
 
