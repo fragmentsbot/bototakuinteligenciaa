@@ -7,16 +7,20 @@ the bot while it lasted, im pretty sure there's a
 memory leak in the server shit, but idc honestly.
     -ItzNop
 */
-
+ 
+const apiai = require('apiai')
+const app = apiai("04b5878f87e54a11a8c0c023bf948546");
 const Discord = require("discord.js");
+const botconfig = require("./colors.json");
 const client = new Discord.Client();
 const fs = require("fs");
 const config = require("./config.json");
 const sf = require("snekfetch")
 const msg = require("./msg.js")
-
+let coins = require("./coins.json");
+let xp = require("./xp.json");
+let purple = botconfig.purple;
 client.colors = require("./servers.json");
-
 let rainbow = 0;
 
 client.on("ready", async () => {
@@ -117,24 +121,49 @@ client.on("message", async message =>{
     message.channel.bulkDelete(fetched)
       .catch(error => message.reply(`Não posso deletar por algum motivo: ${error}`));
   } 
- 
+  if(command === "ban"){ 
+    if(!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send("No can do pal!");
+    if(args[0] == "help"){
+      message.reply("Use: !ban <usario> <motivo>");
+      return;
+    }
+    let bUser = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
+    if(!bUser) return msg.error(message, "**`Mencione um usuario`**");
+    let bReason = args.join(" ").slice(22);
+    if(bUser.hasPermission("ADMINISTRATOR")) return message.channel.send("Esta pessoa pode ser banida");
+
+    let banEmbed = new Discord.RichEmbed()
+    .setDescription("~Ban~")
+    .setColor("#bc0000")
+    .addField("Usuario banido", `${bUser} with ID ${bUser.id}`)
+    .addField("Banido por", `<@${message.author.id}> with ID ${message.author.id}`)
+    .addField("Banido em", message.channel)
+    .addField("Data", message.createdAt)
+    .addField("Motivo", bReason);
+
+    let incidentchannel = message.guild.channels.find(`name`, "incidents");
+    if(!incidentchannel) return message.channel.send("Can't find incidents channel.");
+
+    message.guild.member(bUser).ban(bReason);
+    incidentchannel.send(banEmbed); 
+ }
     if(command === "rainbow") {
         let rainbowRole = args.join(" ");
 
         if(!message.member.hasPermission("ADMINISTRATOR"))
-            return msg.error(message, "You must have the **`ADMINISTRATOR`** permission!")
+            return msg.error(message, "Você precisa ter permissão de **`ADMINISTRADOR`**")
 
 
         if(!message.guild.me.hasPermission("ADMINISTRATOR"))
-            return msg.error(message, "I must have the **`ADMINISTRATOR`** permissions!")
+            return msg.error(message, "Preciso ter permissão de **`ADMINISTRADOR`**")
         
             
         if(!message.member.guild.roles.find("name", rainbowRole))
-            return msg.error(message, "Usage: **`(role name)`**");
+            return msg.error(message, "Use: **`(role name)`**");
 
 
         if(message.member.guild.roles.find("name", rainbowRole).position >= message.guild.me.highestRole.position)
-            return msg.error(message, "My highgest role must be higher than the mentioned role!")
+            return msg.error(message, "Meu cargo, precisa ser mais alto que o cargo mencionado.")
 
 
         msg.success(message, "As cores foram aplicadas **`" + rainbowRole + "`**")
@@ -159,8 +188,7 @@ client.on("message", async message =>{
             })
     }
    
-  
-
+    
     if(command === "shibe") {
         sf.get("http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true")
             .then(res => {
@@ -178,7 +206,44 @@ client.on("message", async message =>{
     }
 });
 
+client.on("message", msg => {
 
+    //let prefix = config.prefix;
+
+    //if (!msg.content.startsWith(prefix)) return;
+    // ignore if Author is a bot
+    //if (msg.author.bot) return;
+
+    //const request = app.textRequest(msg.content.slice(2), {
+        sessionId: msg.author.id
+    //});
+    //request.on('response', function(response) {
+      //  console.log(response);
+        //var intent = response.result.metadata.intentName
+
+        // Here you can make if statements to check if an intent it used
+        // e.x 
+        // if (intent == "yes") {
+        //     msg.channel.send('no')
+        // }
+    });
+
+    //request.on('error', function(error) {
+    //    console.log(error);
+    //});
+
+    //request.end()
+
+    //request.on('response', function(response) {
+      //  let responseText = response.result.fulfillment.speech;
+        //msg.channel.send(`${responseText}`);
+    //});
+
+    ///request.on('error', function(error) {
+  //      console.log(error);
+  //  });
+
+//});
 //rgb junk copy pasted from stackoverflow since i was too lazy to code it myself
 function hslToRgb(h, s, l){
     var r, g, b;
@@ -204,6 +269,4 @@ function hslToRgb(h, s, l){
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
-
-//login with this shitty code
 client.login(config.token);
