@@ -54,6 +54,7 @@ module.exports.help = (message, msg) => {
     .addField(":seedling: Comandos animais",
     help.command("cat", "Mostra um gato aleatorio") +
     help.command("shibe", "Mostra um shibe aleatorio") +
+    help.command("ban", "Banir usuario") +
     help.command("dog", "Mostra um cachorro aleatorio"))
 
     .addField(":skull: Comandos do bot" ,
